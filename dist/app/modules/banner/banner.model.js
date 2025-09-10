@@ -41,9 +41,22 @@ const BannerSchema = new mongoose_1.Schema({
         required: true,
         trim: true
     },
+    description: {
+        type: String,
+        required: true,
+        trim: true
+    },
     image: {
         type: String,
         required: true
+    },
+    primaryButton: {
+        label: { type: String, required: true, trim: true },
+        href: { type: String, required: true, trim: true }
+    },
+    secondaryButton: {
+        label: { type: String, trim: true },
+        href: { type: String, trim: true }
     },
     isActive: {
         type: Boolean,

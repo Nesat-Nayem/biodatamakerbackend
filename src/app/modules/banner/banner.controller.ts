@@ -12,7 +12,20 @@ export const createBanner = async (
   
   
   try {
-    const { title, isActive, order } = req.body;
+    const {
+      title,
+      description,
+      isActive,
+      order,
+      // JSON string versions
+      primaryButton,
+      secondaryButton,
+      // Fallback flat fields
+      primaryButtonLabel,
+      primaryButtonHref,
+      secondaryButtonLabel,
+      secondaryButtonHref,
+    } = req.body as any;
     
     // If image is uploaded through multer middleware, req.file will be available
     if (!req.file) {
@@ -23,12 +36,43 @@ export const createBanner = async (
     // Get the image URL from req.file
     const image = req.file.path;
     
+    // Build button objects (accept JSON strings or flat fields)
+    let parsedPrimaryButton: any;
+    let parsedSecondaryButton: any | undefined;
+    try {
+      if (primaryButton) {
+        parsedPrimaryButton = JSON.parse(primaryButton);
+      } else {
+        parsedPrimaryButton = {
+          label: primaryButtonLabel,
+          href: primaryButtonHref,
+        };
+      }
+    } catch (e) {
+      return next(new appError("Invalid JSON for primaryButton", 400));
+    }
+    try {
+      if (secondaryButton) {
+        parsedSecondaryButton = JSON.parse(secondaryButton);
+      } else if (secondaryButtonLabel || secondaryButtonHref) {
+        parsedSecondaryButton = {
+          label: secondaryButtonLabel,
+          href: secondaryButtonHref,
+        };
+      }
+    } catch (e) {
+      return next(new appError("Invalid JSON for secondaryButton", 400));
+    }
+    
     // Validate the input
     const validatedData = bannerValidation.parse({ 
-      title, 
+      title,
+      description,
       image,
+      primaryButton: parsedPrimaryButton,
+      secondaryButton: parsedSecondaryButton,
       isActive: isActive === 'true' || isActive === true,
-      order: order ? parseInt(order as string) : undefined
+      order: order ? parseInt(order as string) : undefined,
     });
 
     // Create a new banner
@@ -127,7 +171,18 @@ export const updateBannerById = async (
 ) => {
   try {
     const bannerId = req.params.id;
-    const { title, isActive, order } = req.body;
+    const {
+      title,
+      description,
+      isActive,
+      order,
+      primaryButton,
+      secondaryButton,
+      primaryButtonLabel,
+      primaryButtonHref,
+      secondaryButtonLabel,
+      secondaryButtonHref,
+    } = req.body as any;
     
     // Find the banner to update
     const banner = await Banner.findOne({ 
@@ -145,6 +200,9 @@ export const updateBannerById = async (
     
     if (title !== undefined) {
       updateData.title = title;
+    }
+    if (description !== undefined) {
+      updateData.description = description;
     }
     
     if (isActive !== undefined) {
@@ -166,6 +224,38 @@ export const updateBannerById = async (
           await cloudinary.uploader.destroy(`restaurant-banners/${publicId}`);
         }
       }
+    }
+
+    // Primary button (accept JSON string or flat fields)
+    try {
+      if (primaryButton) {
+        const pb = JSON.parse(primaryButton);
+        updateData.primaryButton = pb;
+      } else if (primaryButtonLabel !== undefined || primaryButtonHref !== undefined) {
+        const existingPB: any = (banner as any).primaryButton || {};
+        updateData.primaryButton = {
+          label: primaryButtonLabel ?? existingPB.label,
+          href: primaryButtonHref ?? existingPB.href,
+        };
+      }
+    } catch (e) {
+      return next(new appError("Invalid JSON for primaryButton", 400));
+    }
+
+    // Secondary button
+    try {
+      if (secondaryButton) {
+        const sb = JSON.parse(secondaryButton);
+        updateData.secondaryButton = sb;
+      } else if (secondaryButtonLabel !== undefined || secondaryButtonHref !== undefined) {
+        const existingSB: any = (banner as any).secondaryButton || {};
+        updateData.secondaryButton = {
+          label: secondaryButtonLabel ?? existingSB.label,
+          href: secondaryButtonHref ?? existingSB.href,
+        };
+      }
+    } catch (e) {
+      return next(new appError("Invalid JSON for secondaryButton", 400));
     }
 
     // Validate the update data

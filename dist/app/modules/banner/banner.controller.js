@@ -17,7 +17,11 @@ const cloudinary_1 = require("../../config/cloudinary");
 const createBanner = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { title, isActive, order } = req.body;
+        const { title, description, isActive, order, 
+        // JSON string versions
+        primaryButton, secondaryButton, 
+        // Fallback flat fields
+        primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, } = req.body;
         // If image is uploaded through multer middleware, req.file will be available
         if (!req.file) {
             next(new appError_1.appError("Banner image is required", 400));
@@ -25,12 +29,46 @@ const createBanner = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
         // Get the image URL from req.file
         const image = req.file.path;
+        // Build button objects (accept JSON strings or flat fields)
+        let parsedPrimaryButton;
+        let parsedSecondaryButton;
+        try {
+            if (primaryButton) {
+                parsedPrimaryButton = JSON.parse(primaryButton);
+            }
+            else {
+                parsedPrimaryButton = {
+                    label: primaryButtonLabel,
+                    href: primaryButtonHref,
+                };
+            }
+        }
+        catch (e) {
+            return next(new appError_1.appError("Invalid JSON for primaryButton", 400));
+        }
+        try {
+            if (secondaryButton) {
+                parsedSecondaryButton = JSON.parse(secondaryButton);
+            }
+            else if (secondaryButtonLabel || secondaryButtonHref) {
+                parsedSecondaryButton = {
+                    label: secondaryButtonLabel,
+                    href: secondaryButtonHref,
+                };
+            }
+        }
+        catch (e) {
+            return next(new appError_1.appError("Invalid JSON for secondaryButton", 400));
+        }
         // Validate the input
         const validatedData = banner_validation_1.bannerValidation.parse({
             title,
+            description,
             image,
+            primaryButton: parsedPrimaryButton,
+            secondaryButton: parsedSecondaryButton,
             isActive: isActive === 'true' || isActive === true,
-            order: order ? parseInt(order) : undefined
+            order: order ? parseInt(order) : undefined,
         });
         // Create a new banner
         const banner = new banner_model_1.Banner(validatedData);
@@ -112,7 +150,7 @@ const updateBannerById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     var _a, _b, _c;
     try {
         const bannerId = req.params.id;
-        const { title, isActive, order } = req.body;
+        const { title, description, isActive, order, primaryButton, secondaryButton, primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, } = req.body;
         // Find the banner to update
         const banner = yield banner_model_1.Banner.findOne({
             _id: bannerId,
@@ -126,6 +164,9 @@ const updateBannerById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         const updateData = {};
         if (title !== undefined) {
             updateData.title = title;
+        }
+        if (description !== undefined) {
+            updateData.description = description;
         }
         if (isActive !== undefined) {
             updateData.isActive = isActive === 'true' || isActive === true;
@@ -143,6 +184,40 @@ const updateBannerById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
                     yield cloudinary_1.cloudinary.uploader.destroy(`restaurant-banners/${publicId}`);
                 }
             }
+        }
+        // Primary button (accept JSON string or flat fields)
+        try {
+            if (primaryButton) {
+                const pb = JSON.parse(primaryButton);
+                updateData.primaryButton = pb;
+            }
+            else if (primaryButtonLabel !== undefined || primaryButtonHref !== undefined) {
+                const existingPB = banner.primaryButton || {};
+                updateData.primaryButton = {
+                    label: primaryButtonLabel !== null && primaryButtonLabel !== void 0 ? primaryButtonLabel : existingPB.label,
+                    href: primaryButtonHref !== null && primaryButtonHref !== void 0 ? primaryButtonHref : existingPB.href,
+                };
+            }
+        }
+        catch (e) {
+            return next(new appError_1.appError("Invalid JSON for primaryButton", 400));
+        }
+        // Secondary button
+        try {
+            if (secondaryButton) {
+                const sb = JSON.parse(secondaryButton);
+                updateData.secondaryButton = sb;
+            }
+            else if (secondaryButtonLabel !== undefined || secondaryButtonHref !== undefined) {
+                const existingSB = banner.secondaryButton || {};
+                updateData.secondaryButton = {
+                    label: secondaryButtonLabel !== null && secondaryButtonLabel !== void 0 ? secondaryButtonLabel : existingSB.label,
+                    href: secondaryButtonHref !== null && secondaryButtonHref !== void 0 ? secondaryButtonHref : existingSB.href,
+                };
+            }
+        }
+        catch (e) {
+            return next(new appError_1.appError("Invalid JSON for secondaryButton", 400));
         }
         // Validate the update data
         if (Object.keys(updateData).length > 0) {

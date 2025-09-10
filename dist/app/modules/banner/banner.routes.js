@@ -20,9 +20,26 @@ const router = express_1.default.Router();
  *           type: string
  *         title:
  *           type: string
+ *         description:
+ *           type: string
  *         image:
  *           type: string
  *           description: Image URL
+ *         primaryButton:
+ *           type: object
+ *           required: [label, href]
+ *           properties:
+ *             label:
+ *               type: string
+ *             href:
+ *               type: string
+ *         secondaryButton:
+ *           type: object
+ *           properties:
+ *             label:
+ *               type: string
+ *             href:
+ *               type: string
  *         isActive:
  *           type: boolean
  *         order:
@@ -116,13 +133,35 @@ router.get('/:id', banner_controller_1.getBannerById);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [title, image]
+ *             required: [title, description, image, primaryButton]
  *             properties:
  *               title:
+ *                 type: string
+ *               description:
  *                 type: string
  *               image:
  *                 type: string
  *                 format: binary
+ *               primaryButton:
+ *                 type: string
+ *                 description: |
+ *                   JSON string for the primary button, e.g. {"label":"Create Biodata","href":"/create-biodata"}
+ *               secondaryButton:
+ *                 type: string
+ *                 description: |
+ *                   JSON string for the secondary button, e.g. {"label":"Contact Us","href":"/contact-us"}
+ *               primaryButtonLabel:
+ *                 type: string
+ *                 description: Alternative to primaryButton JSON.
+ *               primaryButtonHref:
+ *                 type: string
+ *                 description: Alternative to primaryButton JSON.
+ *               secondaryButtonLabel:
+ *                 type: string
+ *                 description: Alternative to secondaryButton JSON.
+ *               secondaryButtonHref:
+ *                 type: string
+ *                 description: Alternative to secondaryButton JSON.
  *               isActive:
  *                 type: string
  *                 enum: [true, false]
@@ -161,9 +200,24 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.single
  *             properties:
  *               title:
  *                 type: string
+ *               description:
+ *                 type: string
  *               image:
  *                 type: string
  *                 format: binary
+ *               primaryButton:
+ *                 type: string
+ *                 description: JSON string like {"label":"Create Biodata","href":"/create-biodata"}
+ *               secondaryButton:
+ *                 type: string
+ *               primaryButtonLabel:
+ *                 type: string
+ *               primaryButtonHref:
+ *                 type: string
+ *               secondaryButtonLabel:
+ *                 type: string
+ *               secondaryButtonHref:
+ *                 type: string
  *               isActive:
  *                 type: string
  *                 enum: [true, false]

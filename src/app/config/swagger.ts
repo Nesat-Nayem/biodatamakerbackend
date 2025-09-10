@@ -233,27 +233,30 @@ const options: swaggerJSDoc.Options = {
         Banner: {
           type: 'object',
           properties: {
-            _id: {
-              type: 'string',
-              description: 'Banner ID',
+            _id: { type: 'string', description: 'Banner ID' },
+            title: { type: 'string', description: 'Banner title' },
+            description: { type: 'string', description: 'Banner description' },
+            image: { type: 'string', description: 'Banner image URL' },
+            primaryButton: {
+              type: 'object',
+              properties: {
+                label: { type: 'string' },
+                href: { type: 'string' },
+              },
+              required: ['label', 'href'],
             },
-            title: {
-              type: 'string',
-              description: 'Banner title',
+            secondaryButton: {
+              type: 'object',
+              properties: {
+                label: { type: 'string' },
+                href: { type: 'string' },
+              },
             },
-            image: {
-              type: 'string',
-              description: 'Banner image URL',
-            },
-            link: {
-              type: 'string',
-              description: 'Banner link URL',
-            },
-            status: {
-              type: 'string',
-              enum: ['active', 'inactive'],
-              description: 'Banner status',
-            },
+            isActive: { type: 'boolean' },
+            order: { type: 'integer' },
+            isDeleted: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
           },
         },
         Error: {
