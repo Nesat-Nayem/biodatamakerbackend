@@ -1,4 +1,184 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.verifyPayment = exports.createPayment = void 0;
+const payment_model_1 = require("./payment.model");
+const order_model_1 = require("../order/order.model");
+const mongoose_1 = __importDefault(require("mongoose"));
+const appError_1 = require("../../errors/appError");
+const crypto_1 = __importDefault(require("crypto"));
+// Razorpay configuration
+// npm install razorpay @types/razorpay
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Razorpay = require('razorpay');
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || '',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+});
+// Create payment order (Razorpay order creation)
+const createPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        const { orderId, amount, currency = 'INR', method, description, notes, customerEmail, customerPhone } = req.body;
+        if (!userId) {
+            next(new appError_1.appError('User not authenticated', 401));
+            return;
+        }
+        if (!mongoose_1.default.Types.ObjectId.isValid(orderId)) {
+            next(new appError_1.appError('Invalid order ID', 400));
+            return;
+        }
+        const order = yield order_model_1.Order.findOne({ _id: orderId, user: userId, isDeleted: false });
+        if (!order) {
+            next(new appError_1.appError('Order not found', 404));
+            return;
+        }
+        // Prevent duplicate active payment
+        const existingPayment = yield payment_model_1.Payment.findOne({ orderId, status: { $in: ['pending', 'processing', 'completed'] }, isDeleted: false });
+        if (existingPayment) {
+            next(new appError_1.appError('Payment already exists for this order', 400));
+            return;
+        }
+        // Prefer order total amount if not passed
+        const payableAmountRupees = typeof amount === 'number' ? amount : order.totalAmount;
+        const amountInPaisa = Math.round(payableAmountRupees * 100);
+        let razorpayOrder = null;
+        let razorpayOrderId = null;
+        if (method !== 'cash_on_delivery') {
+            try {
+                const razorpayOptions = {
+                    amount: amountInPaisa,
+                    currency: currency.toUpperCase(),
+                    receipt: `order_${orderId}_${Date.now()}`,
+                    notes: Object.assign({ orderId: orderId, userId: userId.toString() }, (notes || {})),
+                };
+                razorpayOrder = yield razorpay.orders.create(razorpayOptions);
+                razorpayOrderId = razorpayOrder.id;
+            }
+            catch (error) {
+                console.error('Razorpay order creation failed:', error);
+                next(new appError_1.appError('Failed to create payment order', 500));
+                return;
+            }
+        }
+        const email = customerEmail || ((_b = req.user) === null || _b === void 0 ? void 0 : _b.email);
+        const phone = customerPhone || ((_c = req.user) === null || _c === void 0 ? void 0 : _c.phone);
+        const payment = new payment_model_1.Payment({
+            orderId,
+            userId,
+            amount: amountInPaisa,
+            currency: currency.toUpperCase(),
+            method,
+            status: 'pending',
+            razorpayOrderId: razorpayOrderId || undefined,
+            description: description || `Payment for order ${order.orderNumber}`,
+            notes: notes || {},
+            customerEmail: email,
+            customerPhone: phone,
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent'),
+        });
+        yield payment.save();
+        const response = {
+            paymentId: payment.paymentId,
+            orderId: payment.orderId,
+            amount: payment.amount,
+            currency: payment.currency,
+            method: payment.method,
+            status: payment.status,
+        };
+        if (razorpayOrder) {
+            response.razorpayOrderId = razorpayOrder.id;
+            response.razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+            response.razorpayOrder = razorpayOrder;
+        }
+        res.status(201).json({
+            success: true,
+            statusCode: 201,
+            message: 'Payment initiated successfully',
+            data: response,
+        });
+        return;
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.createPayment = createPayment;
+// Verify Razorpay payment
+const verifyPayment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        const payment = yield payment_model_1.Payment.findOne({ razorpayOrderId: razorpay_order_id, isDeleted: false }).populate('orderId');
+        if (!payment) {
+            next(new appError_1.appError('Payment not found', 404));
+            return;
+        }
+        const expectedSignature = crypto_1.default
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+            .digest('hex');
+        if (expectedSignature !== razorpay_signature) {
+            yield payment.markFailed('Invalid signature', 'SIGNATURE_MISMATCH', 'Payment signature verification failed');
+            next(new appError_1.appError('Payment verification failed', 400));
+            return;
+        }
+        try {
+            const razorpayPayment = yield razorpay.payments.fetch(razorpay_payment_id);
+            payment.razorpayPaymentId = razorpay_payment_id;
+            payment.razorpaySignature = razorpay_signature;
+            payment.status = razorpayPayment.status === 'captured' ? 'completed' : 'processing';
+            payment.gatewayResponse = razorpayPayment;
+            if (payment.status === 'completed') {
+                payment.completedAt = new Date();
+            }
+            yield payment.save();
+            const order = payment.orderId;
+            if (order) {
+                order.paymentStatus = payment.status === 'completed' ? 'paid' : 'pending';
+                order.paymentInfo.method = payment.method;
+                order.paymentInfo.status = payment.status === 'completed' ? 'completed' : 'pending';
+                order.paymentInfo.transactionId = razorpay_payment_id;
+                order.paymentInfo.paymentDate = payment.completedAt;
+                yield order.save();
+            }
+            res.status(200).json({
+                success: true,
+                statusCode: 200,
+                message: 'Payment verified successfully',
+                data: {
+                    paymentId: payment.paymentId,
+                    status: payment.status,
+                    razorpayPaymentId: razorpay_payment_id,
+                    amount: payment.amount,
+                },
+            });
+            return;
+        }
+        catch (error) {
+            console.error('Razorpay payment fetch failed:', error);
+            yield payment.markFailed('Payment fetch failed', 'FETCH_ERROR', 'Failed to fetch payment from gateway');
+            next(new appError_1.appError('Payment verification failed', 500));
+            return;
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.verifyPayment = verifyPayment;
 // import { NextFunction, Request, Response } from 'express';
 // import { Payment } from './payment.model';
 // import { Order } from '../order/order.model';

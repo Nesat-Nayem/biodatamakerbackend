@@ -1,3 +1,73 @@
+import express from 'express';
+import { auth } from '../../middlewares/authMiddleware';
+import { createPayment, verifyPayment } from './payment.controller';
+
+const router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Payments
+ *     description: Payment processing with Razorpay
+ */
+
+/**
+ * @swagger
+ * /v1/api/payments:
+ *   post:
+ *     summary: Create a new payment order (Razorpay)
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [orderId, method]
+ *             properties:
+ *               orderId: { type: string }
+ *               amount: { type: number, description: Optional. Uses order total if not provided }
+ *               currency: { type: string, example: INR }
+ *               method: { type: string, enum: [card, upi, netbanking, wallet, cash_on_delivery] }
+ *               description: { type: string }
+ *               notes: { type: object, additionalProperties: true }
+ *               customerEmail: { type: string }
+ *               customerPhone: { type: string }
+ *     responses:
+ *       201:
+ *         description: Payment initiated successfully
+ */
+router.post('/', auth(), createPayment);
+
+/**
+ * @swagger
+ * /v1/api/payments/verify:
+ *   post:
+ *     summary: Verify Razorpay payment
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [razorpay_order_id, razorpay_payment_id, razorpay_signature]
+ *             properties:
+ *               razorpay_order_id: { type: string }
+ *               razorpay_payment_id: { type: string }
+ *               razorpay_signature: { type: string }
+ *     responses:
+ *       200:
+ *         description: Payment verified successfully
+ */
+router.post('/verify', auth(), verifyPayment);
+
+export const paymentRouter = router;
+
 // import express from 'express';
 // import {
 //   createPayment,

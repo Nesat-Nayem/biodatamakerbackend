@@ -93,9 +93,29 @@ const options = {
                 name: 'Discount Offers',
                 description: 'Discount offer management',
             },
+            // {
+            //     name: 'Offer Banners',
+            //     description: 'Offer banner management',
+            // },
             {
-                name: 'Offer Banners',
-                description: 'Offer banner management',
+                name: 'Templates',
+                description: 'Biodata template management',
+            },
+            {
+                name: 'Plans',
+                description: 'Pricing plans/packages management',
+            },
+            {
+                name: 'Biodata',
+                description: 'User biodata creation and management',
+            },
+            {
+                name: 'Orders',
+                description: 'Orders for template downloads',
+            },
+            {
+                name: 'Payments',
+                description: 'Payment processing with Razorpay',
             },
             {
                 name: 'About',

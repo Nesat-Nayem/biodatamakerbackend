@@ -1,3 +1,199 @@
+import { NextFunction, Request, Response } from 'express';
+import { Payment } from './payment.model';
+import { Order } from '../order/order.model';
+import mongoose from 'mongoose';
+import { appError } from '../../errors/appError';
+import crypto from 'crypto';
+
+// Razorpay configuration
+// npm install razorpay @types/razorpay
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Razorpay = require('razorpay');
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
+});
+
+// Create payment order (Razorpay order creation)
+export const createPayment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req as any).user?._id;
+    const { orderId, amount, currency = 'INR', method, description, notes, customerEmail, customerPhone } = req.body as any;
+
+    if (!userId) {
+      next(new appError('User not authenticated', 401));
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      next(new appError('Invalid order ID', 400));
+      return;
+    }
+
+    const order = await Order.findOne({ _id: orderId, user: userId, isDeleted: false });
+
+    if (!order) {
+      next(new appError('Order not found', 404));
+      return;
+    }
+
+    // Prevent duplicate active payment
+    const existingPayment = await Payment.findOne({ orderId, status: { $in: ['pending', 'processing', 'completed'] }, isDeleted: false });
+    if (existingPayment) {
+      next(new appError('Payment already exists for this order', 400));
+      return;
+    }
+
+    // Prefer order total amount if not passed
+    const payableAmountRupees = typeof amount === 'number' ? amount : order.totalAmount;
+    const amountInPaisa = Math.round(payableAmountRupees * 100);
+
+    let razorpayOrder: any = null;
+    let razorpayOrderId: string | null = null;
+
+    if (method !== 'cash_on_delivery') {
+      try {
+        const razorpayOptions = {
+          amount: amountInPaisa,
+          currency: (currency as string).toUpperCase(),
+          receipt: `order_${orderId}_${Date.now()}`,
+          notes: {
+            orderId: orderId,
+            userId: userId.toString(),
+            ...(notes || {}),
+          },
+        };
+        razorpayOrder = await razorpay.orders.create(razorpayOptions);
+        razorpayOrderId = razorpayOrder.id;
+      } catch (error) {
+        console.error('Razorpay order creation failed:', error);
+        next(new appError('Failed to create payment order', 500));
+        return;
+      }
+    }
+
+    const email = customerEmail || (req as any).user?.email;
+    const phone = customerPhone || (req as any).user?.phone;
+
+    const payment = new Payment({
+      orderId,
+      userId,
+      amount: amountInPaisa,
+      currency: (currency as string).toUpperCase(),
+      method,
+      status: 'pending',
+      razorpayOrderId: razorpayOrderId || undefined,
+      description: description || `Payment for order ${order.orderNumber}`,
+      notes: notes || {},
+      customerEmail: email,
+      customerPhone: phone,
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
+
+    await payment.save();
+
+    const response: any = {
+      paymentId: payment.paymentId,
+      orderId: payment.orderId,
+      amount: payment.amount,
+      currency: payment.currency,
+      method: payment.method,
+      status: payment.status,
+    };
+    if (razorpayOrder) {
+      response.razorpayOrderId = razorpayOrder.id;
+      response.razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+      response.razorpayOrder = razorpayOrder;
+    }
+
+    res.status(201).json({
+      success: true,
+      statusCode: 201,
+      message: 'Payment initiated successfully',
+      data: response,
+    });
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Verify Razorpay payment
+export const verifyPayment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body as any;
+
+    const payment = await Payment.findOne({ razorpayOrderId: razorpay_order_id, isDeleted: false }).populate('orderId');
+    if (!payment) {
+      next(new appError('Payment not found', 404));
+      return;
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    if (expectedSignature !== razorpay_signature) {
+      await payment.markFailed('Invalid signature', 'SIGNATURE_MISMATCH', 'Payment signature verification failed');
+      next(new appError('Payment verification failed', 400));
+      return;
+    }
+
+    try {
+      const razorpayPayment = await razorpay.payments.fetch(razorpay_payment_id);
+      payment.razorpayPaymentId = razorpay_payment_id;
+      payment.razorpaySignature = razorpay_signature;
+      payment.status = razorpayPayment.status === 'captured' ? 'completed' : 'processing';
+      payment.gatewayResponse = razorpayPayment;
+      if (payment.status === 'completed') {
+        payment.completedAt = new Date();
+      }
+      await payment.save();
+
+      const order: any = payment.orderId;
+      if (order) {
+        order.paymentStatus = payment.status === 'completed' ? 'paid' : 'pending';
+        order.paymentInfo.method = payment.method;
+        order.paymentInfo.status = payment.status === 'completed' ? 'completed' : 'pending';
+        order.paymentInfo.transactionId = razorpay_payment_id;
+        order.paymentInfo.paymentDate = payment.completedAt;
+        await order.save();
+      }
+
+      res.status(200).json({
+        success: true,
+        statusCode: 200,
+        message: 'Payment verified successfully',
+        data: {
+          paymentId: payment.paymentId,
+          status: payment.status,
+          razorpayPaymentId: razorpay_payment_id,
+          amount: payment.amount,
+        },
+      });
+      return;
+    } catch (error) {
+      console.error('Razorpay payment fetch failed:', error);
+      await payment.markFailed('Payment fetch failed', 'FETCH_ERROR', 'Failed to fetch payment from gateway');
+      next(new appError('Payment verification failed', 500));
+      return;
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 // import { NextFunction, Request, Response } from 'express';
 // import { Payment } from './payment.model';
 // import { Order } from '../order/order.model';

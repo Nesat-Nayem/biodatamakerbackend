@@ -6,12 +6,12 @@ const options: swaggerJSDoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'BigSell E-commerce API',
+      title: 'BioData API',
       version: '1.0.0',
-      // description: 'A comprehensive e-commerce API built with Express.js and TypeScript',
+      // description: 'A comprehensive biodata API built with Express.js and TypeScript',
       contact: {
-        name: 'BigSell Team',
-        email: 'support@bigsell.com',
+        name: 'BioData Team',
+        email: 'support@biodata.com',
       },
       license: {
         name: 'ISC',
@@ -24,7 +24,7 @@ const options: swaggerJSDoc.Options = {
       },
 
       {
-        url: 'https://api.atpuae.com',
+        url: 'https://biodata.atpuae.com',
         description: 'Production server',
       },
     ],
@@ -38,10 +38,7 @@ const options: swaggerJSDoc.Options = {
         name: 'Authentication',
         description: 'Authentication related endpoints',
       },
-      {
-        name: 'Products',
-        description: 'Product management endpoints',
-      },
+
       {
         name: 'Users',
         description: 'User management endpoints',
@@ -82,26 +79,35 @@ const options: swaggerJSDoc.Options = {
         name: 'Banners',
         description: 'Banner management',
       },
+  
       {
-        name: 'Header Banners',
-        description: 'Header banner management',
+        name: 'Templates',
+        description: 'Biodata template management',
       },
       {
-        name: 'Discount Offers',
-        description: 'Discount offer management',
+        name: 'Plans',
+        description: 'Pricing plans/packages management',
       },
       {
-        name: 'Offer Banners',
-        description: 'Offer banner management',
+        name: 'Biodata',
+        description: 'User biodata creation and management',
+      },
+      {
+        name: 'Orders',
+        description: 'Orders for template downloads',
+      },
+      {
+        name: 'Payments',
+        description: 'Payment processing with Razorpay',
       },
       {
         name: 'About',
         description: 'About page content (singleton)',
       },
-      {
-        name: 'Footer Widgets',
-        description: 'Footer widgets management',
-      },
+      // {
+      //   name: 'Footer Widgets',
+      //   description: 'Footer widgets management',
+      // },
       {
         name: 'General Settings',
         description: 'General settings (singleton) management',
@@ -716,7 +722,7 @@ export const setupSwagger = (app: Application): void => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     explorer: true,
     customCss,
-    customSiteTitle: '🚀 BigSell API Documentation',
+    customSiteTitle: '🚀 BioData API Documentation',
     customfavIcon: 'https://cdn-icons-png.flaticon.com/512/2721/2721297.png',
     swaggerOptions: {
       persistAuthorization: true,

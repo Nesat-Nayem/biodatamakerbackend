@@ -20,6 +20,11 @@ const upload_routes_1 = require("../modules/upload/upload.routes");
 const about_routes_1 = require("../modules/about/about.routes");
 const footer_widget_routes_1 = require("../modules/footer-widget/footer-widget.routes");
 const general_settings_routes_1 = require("../modules/general-settings/general-settings.routes");
+const template_routes_1 = require("../modules/template/template.routes");
+const plan_routes_1 = require("../modules/plan/plan.routes");
+const biodata_routes_1 = require("../modules/biodata/biodata.routes");
+const order_routes_1 = require("../modules/order/order.routes");
+const payment_routes_1 = require("../modules/payment/payment.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -37,6 +42,26 @@ const moduleRoutes = [
     {
         path: "/banners",
         route: banner_routes_1.bannerRouter,
+    },
+    {
+        path: "/templates",
+        route: template_routes_1.templateRouter,
+    },
+    {
+        path: "/plans",
+        route: plan_routes_1.planRouter,
+    },
+    {
+        path: "/biodata",
+        route: biodata_routes_1.biodataRouter,
+    },
+    {
+        path: "/orders",
+        route: order_routes_1.orderRouter,
+    },
+    {
+        path: "/payments",
+        route: payment_routes_1.paymentRouter,
     },
     {
         path: "/offer-banners",

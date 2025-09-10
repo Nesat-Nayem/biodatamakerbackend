@@ -25,6 +25,10 @@ const storage = new CloudinaryStorage({
         return 'restaurant-categories';
       } else if (req.originalUrl.includes('/banners')) {
         return 'restaurant-banners';
+      } else if (req.originalUrl.includes('/templates')) {
+        return 'restaurant-templates';
+      } else if (req.originalUrl.includes('/biodata')) {
+        return 'restaurant-biodata';
       } else if (req.originalUrl.includes('/blogs')) {
         return 'restaurant-blogs';
       }

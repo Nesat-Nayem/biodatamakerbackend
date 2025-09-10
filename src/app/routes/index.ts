@@ -12,13 +12,18 @@ import { TermsConditionRouter } from "../modules/terms-condition/terms-condition
 import { helpSupportRouter } from "../modules/help-support/help-support.routes";
 import { blogRouter } from "../modules/blog/blog.routes";
 import { blogCategoryRouter } from "../modules/blog-category/blog-category.routes";
-import { offerBannerRouter } from "../modules/offer-banner/offer-banner.routes";
+// import { offerBannerRouter } from "../modules/offer-banner/offer-banner.routes";
 import { uploadRouter } from "../modules/upload/upload.routes";
 
 // import { paymentRouter } from "../modules/payment/payment.routes";
 import { aboutRouter } from "../modules/about/about.routes";
 import { footerWidgetRouter } from "../modules/footer-widget/footer-widget.routes";
 import { generalSettingsRouter } from "../modules/general-settings/general-settings.routes";
+import { templateRouter } from "../modules/template/template.routes";
+import { planRouter } from "../modules/plan/plan.routes";
+import { biodataRouter } from "../modules/biodata/biodata.routes";
+import { orderRouter } from "../modules/order/order.routes";
+import { paymentRouter } from "../modules/payment/payment.routes";
 
 const router = Router();
 const moduleRoutes = [
@@ -43,9 +48,34 @@ const moduleRoutes = [
   },
 
   {
-    path: "/offer-banners",
-    route: offerBannerRouter,
+    path: "/templates",
+    route: templateRouter,
   },
+
+  {
+    path: "/plans",
+    route: planRouter,
+  },
+
+  {
+    path: "/biodata",
+    route: biodataRouter,
+  },
+
+  {
+    path: "/orders",
+    route: orderRouter,
+  },
+
+  {
+    path: "/payments",
+    route: paymentRouter,
+  },
+
+  // {
+  //   path: "/offer-banners",
+  //   route: offerBannerRouter,
+  // },
 
   {
     path: "/about",
