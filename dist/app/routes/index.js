@@ -14,7 +14,7 @@ const terms_condition_routes_1 = require("../modules/terms-condition/terms-condi
 const help_support_routes_1 = require("../modules/help-support/help-support.routes");
 const blog_routes_1 = require("../modules/blog/blog.routes");
 const blog_category_routes_1 = require("../modules/blog-category/blog-category.routes");
-const offer_banner_routes_1 = require("../modules/offer-banner/offer-banner.routes");
+// import { offerBannerRouter } from "../modules/offer-banner/offer-banner.routes";
 const upload_routes_1 = require("../modules/upload/upload.routes");
 // import { paymentRouter } from "../modules/payment/payment.routes";
 const about_routes_1 = require("../modules/about/about.routes");
@@ -63,10 +63,10 @@ const moduleRoutes = [
         path: "/payments",
         route: payment_routes_1.paymentRouter,
     },
-    {
-        path: "/offer-banners",
-        route: offer_banner_routes_1.offerBannerRouter,
-    },
+    // {
+    //   path: "/offer-banners",
+    //   route: offerBannerRouter,
+    // },
     {
         path: "/about",
         route: about_routes_1.aboutRouter,

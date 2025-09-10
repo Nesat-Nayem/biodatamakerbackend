@@ -10,12 +10,12 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'BigSell E-commerce API',
+            title: 'BioData API',
             version: '1.0.0',
-            // description: 'A comprehensive e-commerce API built with Express.js and TypeScript',
+            // description: 'A comprehensive biodata API built with Express.js and TypeScript',
             contact: {
-                name: 'BigSell Team',
-                email: 'support@bigsell.com',
+                name: 'BioData Team',
+                email: 'support@biodata.com',
             },
             license: {
                 name: 'ISC',
@@ -27,7 +27,7 @@ const options = {
                 description: 'Development server',
             },
             {
-                url: 'https://api.atpuae.com',
+                url: 'https://biodata.atpuae.com',
                 description: 'Production server',
             },
         ],
@@ -40,10 +40,6 @@ const options = {
             {
                 name: 'Authentication',
                 description: 'Authentication related endpoints',
-            },
-            {
-                name: 'Products',
-                description: 'Product management endpoints',
             },
             {
                 name: 'Users',
@@ -86,18 +82,6 @@ const options = {
                 description: 'Banner management',
             },
             {
-                name: 'Header Banners',
-                description: 'Header banner management',
-            },
-            {
-                name: 'Discount Offers',
-                description: 'Discount offer management',
-            },
-            // {
-            //     name: 'Offer Banners',
-            //     description: 'Offer banner management',
-            // },
-            {
                 name: 'Templates',
                 description: 'Biodata template management',
             },
@@ -121,10 +105,10 @@ const options = {
                 name: 'About',
                 description: 'About page content (singleton)',
             },
-            {
-                name: 'Footer Widgets',
-                description: 'Footer widgets management',
-            },
+            // {
+            //   name: 'Footer Widgets',
+            //   description: 'Footer widgets management',
+            // },
             {
                 name: 'General Settings',
                 description: 'General settings (singleton) management',
@@ -736,7 +720,7 @@ const setupSwagger = (app) => {
     app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs, {
         explorer: true,
         customCss,
-        customSiteTitle: '🚀 BigSell API Documentation',
+        customSiteTitle: '🚀 BioData API Documentation',
         customfavIcon: 'https://cdn-icons-png.flaticon.com/512/2721/2721297.png',
         swaggerOptions: {
             persistAuthorization: true,
