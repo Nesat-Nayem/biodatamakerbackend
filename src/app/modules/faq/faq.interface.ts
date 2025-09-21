@@ -6,6 +6,7 @@ export interface IFAQ extends Document {
   category?: string;
   order: number;
   isActive: boolean;
+  status?: 'active' | 'inactive';
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;

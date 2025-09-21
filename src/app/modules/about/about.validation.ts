@@ -1,6 +1,17 @@
 import { z } from 'zod';
 
 export const aboutUpdateValidation = z.object({
+  // New top-level fields
+  title: z.string().min(1).optional(),
+  subtitle: z.string().min(1).optional(),
+  banner: z.string().min(1).optional(),
+  mission: z.string().min(1).optional(),
+  vision: z.string().min(1).optional(),
+  desc: z.string().min(1).optional(),
+  metaTitle: z.string().min(1).optional(),
+  metaTags: z.array(z.string()).optional(),
+  metaDesc: z.string().min(1).optional(),
+
   aboutUs: z
     .object({
       image: z.string().min(1).optional(),

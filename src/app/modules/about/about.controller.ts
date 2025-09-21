@@ -35,6 +35,28 @@ export const updateAbout = async (req: Request, res: Response, next: NextFunctio
     const aboutInfo = parseJSON<any>(req.body.aboutInfo) ?? req.body.aboutInfo;
     const whyChooseUs = parseJSON<any>(req.body.whyChooseUs) ?? req.body.whyChooseUs;
 
+    // Top-level simple string fields
+    const { title, subtitle, mission, vision, desc, metaTitle, metaDesc } = req.body as any;
+    if (title !== undefined) body.title = title;
+    if (subtitle !== undefined) body.subtitle = subtitle;
+    if (mission !== undefined) body.mission = mission;
+    if (vision !== undefined) body.vision = vision;
+    if (desc !== undefined) body.desc = desc;
+    if (metaTitle !== undefined) body.metaTitle = metaTitle;
+    if (metaDesc !== undefined) body.metaDesc = metaDesc;
+
+    // metaTags can be CSV, JSON string, or array
+    let metaTags = (req.body as any).metaTags as any;
+    if (typeof metaTags === 'string') {
+      // try JSON first
+      const parsed = parseJSON<string[]>(metaTags);
+      if (parsed) metaTags = parsed;
+      else metaTags = metaTags.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    if (Array.isArray(metaTags)) {
+      body.metaTags = metaTags;
+    }
+
     if (aboutUs) body.aboutUs = aboutUs;
     if (counter) body.counter = counter;
     if (aboutInfo) body.aboutInfo = aboutInfo;
@@ -48,6 +70,18 @@ export const updateAbout = async (req: Request, res: Response, next: NextFunctio
 
     // Handle image uploads via named fields
     const files = req.files as Record<string, Express.Multer.File[]> | undefined;
+
+    // top-level banner
+    const bannerImage = files?.banner?.[0];
+    if (bannerImage) {
+      const newPath = bannerImage.path;
+      body.banner = newPath;
+      const existing = await About.findOne();
+      if (existing?.banner) {
+        const publicId = existing.banner.split('/').pop()?.split('.')[0];
+        if (publicId) await cloudinary.uploader.destroy(`about/${publicId}`);
+      }
+    }
 
     // aboutUs.image
     const aboutUsImage = files?.aboutUsImage?.[0];

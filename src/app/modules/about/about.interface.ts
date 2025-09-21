@@ -27,6 +27,17 @@ export interface IWhyChooseItem {
 }
 
 export interface IAbout extends Document {
+  // New top-level fields for About page
+  title?: string;
+  subtitle?: string;
+  banner?: string;
+  mission?: string;
+  vision?: string;
+  desc?: string;
+  metaTitle?: string;
+  metaTags?: string[];
+  metaDesc?: string;
+
   aboutUs: IAboutUsSection;
   counter: ICounterSection;
   aboutInfo: IAboutInfoSection;

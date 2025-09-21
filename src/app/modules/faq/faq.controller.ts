@@ -10,15 +10,21 @@ export const createFAQ = async (
   next: NextFunction
 ) => {
   try {
-    const { question, answer, category, order, isActive } = req.body;
+    const { question, answer, category, order, isActive, status } = req.body as any;
     
     // Validate the input
+    const normalizedStatus = status ? String(status).toLowerCase() : undefined;
+    const normalizedIsActive = normalizedStatus
+      ? normalizedStatus === 'active'
+      : (isActive === 'true' || isActive === true);
+
     const validatedData = faqValidation.parse({ 
       question, 
       answer,
       category,
       order: order ? parseInt(order as string) : undefined,
-      isActive: isActive === 'true' || isActive === true
+      isActive: normalizedIsActive,
+      status: normalizedStatus ?? (normalizedIsActive ? 'active' : 'inactive')
     });
 
     // Create a new FAQ
@@ -42,12 +48,14 @@ export const getAllFAQs = async (
   next: NextFunction
 ) => {
   try {
-    // Get only active FAQs if requested
-    const { active, category } = req.query;
+    // Filter by active/status and category
+    const { active, category, status } = req.query as any;
     const filter: any = { isDeleted: false };
     
-    if (active === 'true') {
-      filter.isActive = true;
+    if (typeof status === 'string' && (status === 'active' || status === 'inactive')) {
+      filter.status = status;
+    } else if (active === 'true' || active === 'false') {
+      filter.isActive = active === 'true';
     }
     
     if (category) {
@@ -110,7 +118,7 @@ export const updateFAQById = async (
 ) => {
   try {
     const faqId = req.params.id;
-    const { question, answer, category, order, isActive } = req.body;
+    const { question, answer, category, order, isActive, status } = req.body as any;
     
     // Find the FAQ to update
     const faq = await FAQ.findOne({ 
@@ -141,8 +149,14 @@ export const updateFAQById = async (
       updateData.order = parseInt(order as string);
     }
     
-    if (isActive !== undefined) {
-      updateData.isActive = isActive === 'true' || isActive === true;
+    if (status !== undefined) {
+      const normalized = String(status).toLowerCase();
+      updateData.status = normalized;
+      updateData.isActive = normalized === 'active';
+    } else if (isActive !== undefined) {
+      const ia = isActive === 'true' || isActive === true;
+      updateData.isActive = ia;
+      updateData.status = ia ? 'active' : 'inactive';
     }
 
     // Validate the update data

@@ -5,7 +5,8 @@ export const faqValidation = z.object({
   answer: z.string().min(1, 'Answer is required'),
   category: z.string().optional(),
   order: z.number().optional(),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
+  status: z.enum(['active', 'inactive']).optional(),
 });
 
 export const faqUpdateValidation = z.object({
@@ -13,5 +14,6 @@ export const faqUpdateValidation = z.object({
   answer: z.string().min(1, 'Answer is required').optional(),
   category: z.string().optional(),
   order: z.number().optional(),
-  isActive: z.boolean().optional()
+  isActive: z.boolean().optional(),
+  status: z.enum(['active', 'inactive']).optional(),
 });
