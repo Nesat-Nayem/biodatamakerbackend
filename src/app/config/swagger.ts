@@ -89,6 +89,34 @@ const options: swaggerJSDoc.Options = {
         description: 'Site-wide counters management',
       },
       {
+        name: 'Package',
+        description: 'Pricing packages management',
+      },
+      {
+        name: 'Transactions',
+        description: 'Transaction history management',
+      },
+      {
+        name: 'Advertise',
+        description: 'Advertisements management',
+      },
+      {
+        name: 'Testimonials',
+        description: 'Testimonials management',
+      },
+      {
+        name: 'Compare',
+        description: 'Compare items management',
+      },
+      {
+        name: 'Core Functions',
+        description: 'Core features section management',
+      },
+      {
+        name: 'Steps',
+        description: 'Steps section management',
+      },
+      {
         name: 'Plans',
         description: 'Pricing plans/packages management',
       },

@@ -25,6 +25,13 @@ import { biodataRouter } from "../modules/biodata/biodata.routes";
 import { orderRouter } from "../modules/order/order.routes";
 import { paymentRouter } from "../modules/payment/payment.routes";
 import { counterRouter } from "../modules/counter/counter.routes";
+import { packageRouter } from "../modules/package/package.routes";
+import { transactionRouter } from "../modules/transaction/transaction.routes";
+import { advertiseRouter } from "../modules/advertise/advertise.routes";
+import { testimonialRouter } from "../modules/testimonial/testimonial.routes";
+import { compareRouter } from "../modules/compare/compare.routes";
+import { coreFunctionsRouter } from "../modules/core-functions/core-functions.routes";
+import { stepsRouter } from "../modules/steps/steps.routes";
 
 const router = Router();
 const moduleRoutes = [
@@ -56,6 +63,41 @@ const moduleRoutes = [
   {
     path: "/counters",
     route: counterRouter,
+  },
+
+  {
+    path: "/packages",
+    route: packageRouter,
+  },
+
+  {
+    path: "/transactions",
+    route: transactionRouter,
+  },
+
+  {
+    path: "/advertise",
+    route: advertiseRouter,
+  },
+
+  {
+    path: "/testimonials",
+    route: testimonialRouter,
+  },
+
+  {
+    path: "/compares",
+    route: compareRouter,
+  },
+
+  {
+    path: "/core-functions",
+    route: coreFunctionsRouter,
+  },
+
+  {
+    path: "/steps",
+    route: stepsRouter,
   },
 
   {
