@@ -12,7 +12,7 @@ const slugify = (str: string) =>
 
 export const createTemplate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name, slug, categories, previewImages, isActive, order } = req.body as any;
+    const { name, slug, categories, previewImages, isActive, order, title, subtitle, seoTitle, seoTags, seoDescription } = req.body as any;
 
     const thumbFile = (req.files as any)?.thumbnail?.[0];
     if (!thumbFile) {
@@ -34,12 +34,53 @@ export const createTemplate = async (req: Request, res: Response, next: NextFunc
       }
     }
 
+    // Banners multi image
+    let banners: string[] | undefined = undefined;
+    const bannersFiles = (req.files as any)?.banners || [];
+    if (bannersFiles.length) {
+      banners = bannersFiles.map((f: any) => f.path);
+    }
+
+    // Parse categories (stringified array supported)
+    let parsedCategories: string[] | undefined = undefined;
+    if (categories !== undefined) {
+      try {
+        parsedCategories = typeof categories === 'string' ? JSON.parse(categories) : categories;
+      } catch (e) {
+        return next(new appError('Invalid JSON for categories', 400));
+      }
+    }
+
+    // Parse SEO tags: accept JSON string, comma-separated string, or array
+    let parsedSeoTags: string[] | undefined = undefined;
+    if (seoTags !== undefined) {
+      if (Array.isArray(seoTags)) {
+        parsedSeoTags = seoTags;
+      } else if (typeof seoTags === 'string') {
+        try {
+          if (seoTags.trim().startsWith('[')) {
+            parsedSeoTags = JSON.parse(seoTags);
+          } else {
+            parsedSeoTags = seoTags.split(',').map((s) => s.trim()).filter(Boolean);
+          }
+        } catch (e) {
+          return next(new appError('Invalid SEO tags format', 400));
+        }
+      }
+    }
+
     const validated = templateCreateValidation.parse({
       name,
       slug: slug || slugify(name),
       thumbnail,
       previewImages: previews,
-      categories: categories ? (typeof categories === 'string' ? JSON.parse(categories) : categories) : undefined,
+      categories: parsedCategories,
+      title,
+      subtitle,
+      banners,
+      seoTitle,
+      seoTags: parsedSeoTags,
+      seoDescription,
       isActive: isActive === 'true' || isActive === true || undefined,
       order: order ? parseInt(order) : undefined,
     });
@@ -59,6 +100,7 @@ export const createTemplate = async (req: Request, res: Response, next: NextFunc
     };
     cleanup(files.thumbnail, 'restaurant-templates');
     cleanup(files.previews, 'restaurant-templates');
+    cleanup(files.banners, 'restaurant-templates');
     next(error);
   }
 };
@@ -90,7 +132,7 @@ export const getTemplateById = async (req: Request, res: Response, next: NextFun
 export const updateTemplateById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const { name, slug, categories, previewImages, isActive, order } = req.body as any;
+    const { name, slug, categories, previewImages, isActive, order, title, subtitle, seoTitle, seoTags, seoDescription, banners } = req.body as any;
 
     const existing = await Template.findOne({ _id: id, isDeleted: false });
     if (!existing) return next(new appError('Template not found', 404));
@@ -98,9 +140,32 @@ export const updateTemplateById = async (req: Request, res: Response, next: Next
     const updateData: any = {};
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug || slugify(name || existing.name);
-    if (categories !== undefined) updateData.categories = typeof categories === 'string' ? JSON.parse(categories) : categories;
+    if (categories !== undefined) {
+      try {
+        updateData.categories = typeof categories === 'string' ? JSON.parse(categories) : categories;
+      } catch (e) {
+        return next(new appError('Invalid JSON for categories', 400));
+      }
+    }
     if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
     if (order !== undefined) updateData.order = parseInt(order);
+    if (title !== undefined) updateData.title = title;
+    if (subtitle !== undefined) updateData.subtitle = subtitle;
+    if (seoTitle !== undefined) updateData.seoTitle = seoTitle;
+    if (seoDescription !== undefined) updateData.seoDescription = seoDescription;
+    if (seoTags !== undefined) {
+      if (Array.isArray(seoTags)) {
+        updateData.seoTags = seoTags;
+      } else if (typeof seoTags === 'string') {
+        try {
+          updateData.seoTags = seoTags.trim().startsWith('[')
+            ? JSON.parse(seoTags)
+            : seoTags.split(',').map((s: string) => s.trim()).filter(Boolean);
+        } catch (e) {
+          return next(new appError('Invalid SEO tags format', 400));
+        }
+      }
+    }
 
     const thumbFile = (req.files as any)?.thumbnail?.[0];
     if (thumbFile) {
@@ -120,6 +185,18 @@ export const updateTemplateById = async (req: Request, res: Response, next: Next
         updateData.previewImages = parsed;
       } catch (e) {
         return next(new appError('Invalid JSON for previewImages', 400));
+      }
+    }
+
+    // Handle banners update: files or body array/string
+    const bannersFiles = (req.files as any)?.banners || [];
+    if (bannersFiles.length) {
+      updateData.banners = bannersFiles.map((f: any) => f.path);
+    } else if (banners !== undefined) {
+      try {
+        updateData.banners = typeof banners === 'string' ? JSON.parse(banners) : banners;
+      } catch (e) {
+        return next(new appError('Invalid JSON for banners', 400));
       }
     }
 

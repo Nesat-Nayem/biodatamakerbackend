@@ -85,6 +85,10 @@ const options: swaggerJSDoc.Options = {
         description: 'Biodata template management',
       },
       {
+        name: 'Counters',
+        description: 'Site-wide counters management',
+      },
+      {
         name: 'Plans',
         description: 'Pricing plans/packages management',
       },
@@ -260,6 +264,19 @@ const options: swaggerJSDoc.Options = {
             },
             isActive: { type: 'boolean' },
             order: { type: 'integer' },
+            isDeleted: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        Counter: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            totalBiodataCreated: { type: 'integer' },
+            happyClients: { type: 'integer' },
+            dailyVisits: { type: 'integer' },
+            activeUsers: { type: 'integer' },
             isDeleted: { type: 'boolean' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },

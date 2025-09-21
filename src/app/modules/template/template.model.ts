@@ -8,6 +8,13 @@ const TemplateSchema: Schema = new Schema(
     thumbnail: { type: String, required: true },
     previewImages: { type: [String], default: [] },
     categories: { type: [String], default: [] },
+    // Newly added fields
+    title: { type: String, trim: true },
+    subtitle: { type: String, trim: true },
+    banners: { type: [String], default: [] },
+    seoTitle: { type: String, trim: true },
+    seoTags: { type: [String], default: [] },
+    seoDescription: { type: String, trim: true },
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false },

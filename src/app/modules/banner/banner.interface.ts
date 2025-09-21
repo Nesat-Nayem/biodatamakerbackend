@@ -10,6 +10,11 @@ export interface IBanner extends Document {
   title: string;
   description: string;
   image: string;
+  // Newly added fields
+  shortDesc: string;
+  totalBiodataCreated?: number;
+  banner: string;
+  status: 'active' | 'inactive';
   primaryButton: Button;
   secondaryButton?: Button;
   isActive: boolean;

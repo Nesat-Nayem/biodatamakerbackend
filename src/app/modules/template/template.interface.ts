@@ -6,6 +6,13 @@ export interface ITemplate extends Document {
   thumbnail: string;
   previewImages?: string[];
   categories?: string[];
+  // Newly added fields
+  title?: string;
+  subtitle?: string;
+  banners?: string[];
+  seoTitle?: string;
+  seoTags?: string[];
+  seoDescription?: string;
   isActive: boolean;
   order: number;
   isDeleted: boolean;

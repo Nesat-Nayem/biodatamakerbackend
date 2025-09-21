@@ -24,6 +24,7 @@ import { planRouter } from "../modules/plan/plan.routes";
 import { biodataRouter } from "../modules/biodata/biodata.routes";
 import { orderRouter } from "../modules/order/order.routes";
 import { paymentRouter } from "../modules/payment/payment.routes";
+import { counterRouter } from "../modules/counter/counter.routes";
 
 const router = Router();
 const moduleRoutes = [
@@ -50,6 +51,11 @@ const moduleRoutes = [
   {
     path: "/templates",
     route: templateRouter,
+  },
+
+  {
+    path: "/counters",
+    route: counterRouter,
   },
 
   {

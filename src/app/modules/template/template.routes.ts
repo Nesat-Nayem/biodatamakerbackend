@@ -71,6 +71,19 @@ router.get('/:id', getTemplateById);
  *               previews:
  *                 type: array
  *                 items: { type: string, format: binary }
+ *               title: { type: string }
+ *               subtitle: { type: string }
+ *               banners:
+ *                 type: array
+ *                 items: { type: string, format: binary }
+ *               seoTitle: { type: string }
+ *               seoTags:
+ *                 oneOf:
+ *                   - type: string
+ *                     description: Comma separated or JSON string
+ *                   - type: array
+ *                     items: { type: string }
+ *               seoDescription: { type: string }
  *               categories:
  *                 type: string
  *                 description: JSON string array of categories
@@ -82,7 +95,7 @@ router.get('/:id', getTemplateById);
  *       201:
  *         description: Created
  */
-router.post('/', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }]), createTemplate);
+router.post('/', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }, { name: 'banners', maxCount: 10 }]), createTemplate);
 
 /**
  * @swagger
@@ -111,6 +124,19 @@ router.post('/', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 
  *               previews:
  *                 type: array
  *                 items: { type: string, format: binary }
+ *               title: { type: string }
+ *               subtitle: { type: string }
+ *               banners:
+ *                 type: array
+ *                 items: { type: string, format: binary }
+ *               seoTitle: { type: string }
+ *               seoTags:
+ *                 oneOf:
+ *                   - type: string
+ *                     description: Comma separated or JSON string
+ *                   - type: array
+ *                     items: { type: string }
+ *               seoDescription: { type: string }
  *               categories:
  *                 type: string
  *               isActive:
@@ -121,7 +147,7 @@ router.post('/', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 
  *       200:
  *         description: OK
  */
-router.put('/:id', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }]), updateTemplateById);
+router.put('/:id', auth('admin'), upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }, { name: 'banners', maxCount: 10 }]), updateTemplateById);
 
 /**
  * @swagger

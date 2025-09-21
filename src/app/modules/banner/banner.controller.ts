@@ -15,7 +15,9 @@ export const createBanner = async (
     const {
       title,
       description,
+      shortDesc,
       isActive,
+      status,
       order,
       // JSON string versions
       primaryButton,
@@ -25,6 +27,7 @@ export const createBanner = async (
       primaryButtonHref,
       secondaryButtonLabel,
       secondaryButtonHref,
+      totalBiodataCreated,
     } = req.body as any;
     
     // If image is uploaded through multer middleware, req.file will be available
@@ -35,6 +38,7 @@ export const createBanner = async (
 
     // Get the image URL from req.file
     const image = req.file.path;
+    const bannerUrl = image; // map to new 'banner' field as well
     
     // Build button objects (accept JSON strings or flat fields)
     let parsedPrimaryButton: any;
@@ -68,10 +72,14 @@ export const createBanner = async (
     const validatedData = bannerValidation.parse({ 
       title,
       description,
+      shortDesc,
       image,
+      banner: bannerUrl,
       primaryButton: parsedPrimaryButton,
       secondaryButton: parsedSecondaryButton,
-      isActive: isActive === 'true' || isActive === true,
+      totalBiodataCreated: totalBiodataCreated !== undefined && totalBiodataCreated !== '' ? parseInt(totalBiodataCreated as string) : undefined,
+      status: status as any,
+      isActive: status ? status === 'active' : (isActive === 'true' || isActive === true),
       order: order ? parseInt(order as string) : undefined,
     });
 
@@ -174,7 +182,9 @@ export const updateBannerById = async (
     const {
       title,
       description,
+      shortDesc,
       isActive,
+      status,
       order,
       primaryButton,
       secondaryButton,
@@ -182,6 +192,7 @@ export const updateBannerById = async (
       primaryButtonHref,
       secondaryButtonLabel,
       secondaryButtonHref,
+      totalBiodataCreated,
     } = req.body as any;
     
     // Find the banner to update
@@ -204,18 +215,30 @@ export const updateBannerById = async (
     if (description !== undefined) {
       updateData.description = description;
     }
+    if (shortDesc !== undefined) {
+      updateData.shortDesc = shortDesc;
+    }
     
     if (isActive !== undefined) {
       updateData.isActive = isActive === 'true' || isActive === true;
+    }
+    if (status !== undefined) {
+      updateData.status = status;
+      // keep consistency
+      updateData.isActive = status === 'active';
     }
     
     if (order !== undefined) {
       updateData.order = parseInt(order as string);
     }
+    if (totalBiodataCreated !== undefined) {
+      updateData.totalBiodataCreated = parseInt(totalBiodataCreated as string);
+    }
 
     // If there's a new image
     if (req.file) {
       updateData.image = req.file.path;
+      updateData.banner = req.file.path;
       
       // Delete the old image from cloudinary if it exists
       if (banner.image) {
