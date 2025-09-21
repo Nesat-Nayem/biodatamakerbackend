@@ -60,6 +60,17 @@ const router = express_1.default.Router();
  *     About:
  *       type: object
  *       properties:
+ *         title: { type: string }
+ *         subtitle: { type: string }
+ *         banner: { type: string, description: 'Top-level banner image URL' }
+ *         mission: { type: string }
+ *         vision: { type: string }
+ *         desc: { type: string }
+ *         metaTitle: { type: string }
+ *         metaTags:
+ *           type: array
+ *           items: { type: string }
+ *         metaDesc: { type: string }
  *         _id: { type: string }
  *         aboutUs:
  *           $ref: '#/components/schemas/AboutUsSection'
@@ -140,10 +151,24 @@ router.get('/', about_controller_1.getAbout);
  *           schema:
  *             type: object
  *             properties:
+ *               title: { type: string }
+ *               subtitle: { type: string }
+ *               mission: { type: string }
+ *               vision: { type: string }
+ *               desc: { type: string }
+ *               metaTitle: { type: string }
+ *               metaTags:
+ *                 oneOf:
+ *                   - type: string
+ *                     description: CSV or JSON string
+ *                   - type: array
+ *                     items: { type: string }
+ *               metaDesc: { type: string }
  *               aboutUs: { type: string, description: 'JSON string for { image?, title?, subtitle?, url? }' }
  *               counter: { type: string, description: 'JSON string for { happyCustomers?, electronicsProducts?, activeSalesman?, storeWorldwide? }' }
  *               aboutInfo: { type: string, description: 'JSON string for { image?, title?, description? }' }
  *               whyChooseUs: { type: string, description: 'JSON array string of up to 3 items [{ image?, title?, shortDesc? }, ...]' }
+ *               banner: { type: string, format: binary }
  *               aboutUsImage: { type: string, format: binary }
  *               aboutInfoImage: { type: string, format: binary }
  *               why1Image: { type: string, format: binary }
@@ -166,6 +191,7 @@ router.get('/', about_controller_1.getAbout);
  *               $ref: '#/components/schemas/AboutResponse'
  */
 router.put('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields([
+    { name: 'banner', maxCount: 1 },
     { name: 'aboutUsImage', maxCount: 1 },
     { name: 'aboutInfoImage', maxCount: 1 },
     { name: 'why1Image', maxCount: 1 },

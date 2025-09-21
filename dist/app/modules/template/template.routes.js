@@ -72,6 +72,19 @@ router.get('/:id', template_controller_1.getTemplateById);
  *               previews:
  *                 type: array
  *                 items: { type: string, format: binary }
+ *               title: { type: string }
+ *               subtitle: { type: string }
+ *               banners:
+ *                 type: array
+ *                 items: { type: string, format: binary }
+ *               seoTitle: { type: string }
+ *               seoTags:
+ *                 oneOf:
+ *                   - type: string
+ *                     description: Comma separated or JSON string
+ *                   - type: array
+ *                     items: { type: string }
+ *               seoDescription: { type: string }
  *               categories:
  *                 type: string
  *                 description: JSON string array of categories
@@ -83,7 +96,7 @@ router.get('/:id', template_controller_1.getTemplateById);
  *       201:
  *         description: Created
  */
-router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }]), template_controller_1.createTemplate);
+router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }, { name: 'banners', maxCount: 10 }]), template_controller_1.createTemplate);
 /**
  * @swagger
  * /v1/api/templates/{id}:
@@ -111,6 +124,19 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields
  *               previews:
  *                 type: array
  *                 items: { type: string, format: binary }
+ *               title: { type: string }
+ *               subtitle: { type: string }
+ *               banners:
+ *                 type: array
+ *                 items: { type: string, format: binary }
+ *               seoTitle: { type: string }
+ *               seoTags:
+ *                 oneOf:
+ *                   - type: string
+ *                     description: Comma separated or JSON string
+ *                   - type: array
+ *                     items: { type: string }
+ *               seoDescription: { type: string }
  *               categories:
  *                 type: string
  *               isActive:
@@ -121,7 +147,7 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields
  *       200:
  *         description: OK
  */
-router.put('/:id', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }]), template_controller_1.updateTemplateById);
+router.put('/:id', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.fields([{ name: 'thumbnail', maxCount: 1 }, { name: 'previews', maxCount: 10 }, { name: 'banners', maxCount: 10 }]), template_controller_1.updateTemplateById);
 /**
  * @swagger
  * /v1/api/templates/{id}:

@@ -86,6 +86,38 @@ const options = {
                 description: 'Biodata template management',
             },
             {
+                name: 'Counters',
+                description: 'Site-wide counters management',
+            },
+            {
+                name: 'Package',
+                description: 'Pricing packages management',
+            },
+            {
+                name: 'Transactions',
+                description: 'Transaction history management',
+            },
+            {
+                name: 'Advertise',
+                description: 'Advertisements management',
+            },
+            {
+                name: 'Testimonials',
+                description: 'Testimonials management',
+            },
+            {
+                name: 'Compare',
+                description: 'Compare items management',
+            },
+            {
+                name: 'Core Functions',
+                description: 'Core features section management',
+            },
+            {
+                name: 'Steps',
+                description: 'Steps section management',
+            },
+            {
                 name: 'Plans',
                 description: 'Pricing plans/packages management',
             },
@@ -261,6 +293,19 @@ const options = {
                         },
                         isActive: { type: 'boolean' },
                         order: { type: 'integer' },
+                        isDeleted: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Counter: {
+                    type: 'object',
+                    properties: {
+                        _id: { type: 'string' },
+                        totalBiodataCreated: { type: 'integer' },
+                        happyClients: { type: 'integer' },
+                        dailyVisits: { type: 'integer' },
+                        activeUsers: { type: 'integer' },
                         isDeleted: { type: 'boolean' },
                         createdAt: { type: 'string', format: 'date-time' },
                         updatedAt: { type: 'string', format: 'date-time' },

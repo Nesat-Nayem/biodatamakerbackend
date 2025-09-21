@@ -28,6 +28,9 @@ const router = express_1.default.Router();
  *           type: integer
  *         isActive:
  *           type: boolean
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
  *         isDeleted:
  *           type: boolean
  *         createdAt:
@@ -55,6 +58,9 @@ const router = express_1.default.Router();
  *         isActive:
  *           type: boolean
  *           example: true
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
  *     FAQUpdate:
  *       type: object
  *       properties:
@@ -68,6 +74,9 @@ const router = express_1.default.Router();
  *           type: integer
  *         isActive:
  *           type: boolean
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
  *     FAQResponse:
  *       type: object
  *       properties:
@@ -152,6 +161,12 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), faq_controller_1.createFAQ
  *         schema:
  *           type: boolean
  *         description: If true, only return active FAQs
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive]
+ *         description: Filter FAQs by status (preferred over 'active')
  *       - in: query
  *         name: category
  *         schema:

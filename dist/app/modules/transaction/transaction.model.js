@@ -33,48 +33,22 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FAQ = void 0;
+exports.Transaction = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const FAQSchema = new mongoose_1.Schema({
-    question: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    answer: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    category: {
-        type: String,
-        trim: true,
-        default: 'General'
-    },
-    order: {
-        type: Number,
-        default: 0
-    },
-    isActive: {
-        type: Boolean,
-        default: true
-    },
-    status: {
-        type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
-    },
-    isDeleted: {
-        type: Boolean,
-        default: false
-    },
+const TransactionSchema = new mongoose_1.Schema({
+    fullName: { type: String, required: true, trim: true },
+    selectedPackage: { type: String, required: true, trim: true },
+    payment: { type: Number, required: true, min: 0 },
+    paymentMode: { type: String, required: true, trim: true },
+    status: { type: String, enum: ['pending', 'success', 'failed', 'cancelled'], default: 'pending' },
+    isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {
         transform: function (doc, ret) {
             ret.createdAt = new Date(ret.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
             ret.updatedAt = new Date(ret.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-        }
-    }
+        },
+    },
 });
-exports.FAQ = mongoose_1.default.model('FAQ', FAQSchema);
+exports.Transaction = mongoose_1.default.model('Transaction', TransactionSchema);

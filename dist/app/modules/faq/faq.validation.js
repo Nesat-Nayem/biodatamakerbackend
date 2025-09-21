@@ -7,12 +7,14 @@ exports.faqValidation = zod_1.z.object({
     answer: zod_1.z.string().min(1, 'Answer is required'),
     category: zod_1.z.string().optional(),
     order: zod_1.z.number().optional(),
-    isActive: zod_1.z.boolean().optional()
+    isActive: zod_1.z.boolean().optional(),
+    status: zod_1.z.enum(['active', 'inactive']).optional(),
 });
 exports.faqUpdateValidation = zod_1.z.object({
     question: zod_1.z.string().min(1, 'Question is required').optional(),
     answer: zod_1.z.string().min(1, 'Answer is required').optional(),
     category: zod_1.z.string().optional(),
     order: zod_1.z.number().optional(),
-    isActive: zod_1.z.boolean().optional()
+    isActive: zod_1.z.boolean().optional(),
+    status: zod_1.z.enum(['active', 'inactive']).optional(),
 });

@@ -16,14 +16,19 @@ const appError_1 = require("../../errors/appError");
 const aiService_1 = require("../../services/aiService");
 const createFAQ = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { question, answer, category, order, isActive } = req.body;
+        const { question, answer, category, order, isActive, status } = req.body;
         // Validate the input
+        const normalizedStatus = status ? String(status).toLowerCase() : undefined;
+        const normalizedIsActive = normalizedStatus
+            ? normalizedStatus === 'active'
+            : (isActive === 'true' || isActive === true);
         const validatedData = faq_validation_1.faqValidation.parse({
             question,
             answer,
             category,
             order: order ? parseInt(order) : undefined,
-            isActive: isActive === 'true' || isActive === true
+            isActive: normalizedIsActive,
+            status: normalizedStatus !== null && normalizedStatus !== void 0 ? normalizedStatus : (normalizedIsActive ? 'active' : 'inactive')
         });
         // Create a new FAQ
         const faq = new faq_model_1.FAQ(validatedData);
@@ -42,11 +47,14 @@ const createFAQ = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 exports.createFAQ = createFAQ;
 const getAllFAQs = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Get only active FAQs if requested
-        const { active, category } = req.query;
+        // Filter by active/status and category
+        const { active, category, status } = req.query;
         const filter = { isDeleted: false };
-        if (active === 'true') {
-            filter.isActive = true;
+        if (typeof status === 'string' && (status === 'active' || status === 'inactive')) {
+            filter.status = status;
+        }
+        else if (active === 'true' || active === 'false') {
+            filter.isActive = active === 'true';
         }
         if (category) {
             filter.category = category;
@@ -97,7 +105,7 @@ exports.getFAQById = getFAQById;
 const updateFAQById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const faqId = req.params.id;
-        const { question, answer, category, order, isActive } = req.body;
+        const { question, answer, category, order, isActive, status } = req.body;
         // Find the FAQ to update
         const faq = yield faq_model_1.FAQ.findOne({
             _id: faqId,
@@ -120,8 +128,15 @@ const updateFAQById = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if (order !== undefined) {
             updateData.order = parseInt(order);
         }
-        if (isActive !== undefined) {
-            updateData.isActive = isActive === 'true' || isActive === true;
+        if (status !== undefined) {
+            const normalized = String(status).toLowerCase();
+            updateData.status = normalized;
+            updateData.isActive = normalized === 'active';
+        }
+        else if (isActive !== undefined) {
+            const ia = isActive === 'true' || isActive === true;
+            updateData.isActive = ia;
+            updateData.status = ia ? 'active' : 'inactive';
         }
         // Validate the update data
         if (Object.keys(updateData).length > 0) {

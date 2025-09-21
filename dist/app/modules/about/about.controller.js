@@ -38,7 +38,7 @@ const getAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.getAbout = getAbout;
 const updateAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     try {
         // Accept nested sections either as JSON strings (recommended for multipart) or as direct fields
         const body = {};
@@ -46,6 +46,35 @@ const updateAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const counter = (_b = parseJSON(req.body.counter)) !== null && _b !== void 0 ? _b : req.body.counter;
         const aboutInfo = (_c = parseJSON(req.body.aboutInfo)) !== null && _c !== void 0 ? _c : req.body.aboutInfo;
         const whyChooseUs = (_d = parseJSON(req.body.whyChooseUs)) !== null && _d !== void 0 ? _d : req.body.whyChooseUs;
+        // Top-level simple string fields
+        const { title, subtitle, mission, vision, desc, metaTitle, metaDesc } = req.body;
+        if (title !== undefined)
+            body.title = title;
+        if (subtitle !== undefined)
+            body.subtitle = subtitle;
+        if (mission !== undefined)
+            body.mission = mission;
+        if (vision !== undefined)
+            body.vision = vision;
+        if (desc !== undefined)
+            body.desc = desc;
+        if (metaTitle !== undefined)
+            body.metaTitle = metaTitle;
+        if (metaDesc !== undefined)
+            body.metaDesc = metaDesc;
+        // metaTags can be CSV, JSON string, or array
+        let metaTags = req.body.metaTags;
+        if (typeof metaTags === 'string') {
+            // try JSON first
+            const parsed = parseJSON(metaTags);
+            if (parsed)
+                metaTags = parsed;
+            else
+                metaTags = metaTags.split(',').map((s) => s.trim()).filter(Boolean);
+        }
+        if (Array.isArray(metaTags)) {
+            body.metaTags = metaTags;
+        }
         if (aboutUs)
             body.aboutUs = aboutUs;
         if (counter)
@@ -61,41 +90,53 @@ const updateAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }
         // Handle image uploads via named fields
         const files = req.files;
+        // top-level banner
+        const bannerImage = (_e = files === null || files === void 0 ? void 0 : files.banner) === null || _e === void 0 ? void 0 : _e[0];
+        if (bannerImage) {
+            const newPath = bannerImage.path;
+            body.banner = newPath;
+            const existing = yield about_model_1.About.findOne();
+            if (existing === null || existing === void 0 ? void 0 : existing.banner) {
+                const publicId = (_f = existing.banner.split('/').pop()) === null || _f === void 0 ? void 0 : _f.split('.')[0];
+                if (publicId)
+                    yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
+            }
+        }
         // aboutUs.image
-        const aboutUsImage = (_e = files === null || files === void 0 ? void 0 : files.aboutUsImage) === null || _e === void 0 ? void 0 : _e[0];
+        const aboutUsImage = (_g = files === null || files === void 0 ? void 0 : files.aboutUsImage) === null || _g === void 0 ? void 0 : _g[0];
         if (aboutUsImage) {
             const newPath = aboutUsImage.path;
             body.aboutUs = body.aboutUs || {};
             body.aboutUs.image = newPath;
-            if ((_f = doc.aboutUs) === null || _f === void 0 ? void 0 : _f.image) {
-                const publicId = (_g = doc.aboutUs.image.split('/').pop()) === null || _g === void 0 ? void 0 : _g.split('.')[0];
+            if ((_h = doc.aboutUs) === null || _h === void 0 ? void 0 : _h.image) {
+                const publicId = (_j = doc.aboutUs.image.split('/').pop()) === null || _j === void 0 ? void 0 : _j.split('.')[0];
                 if (publicId)
                     yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
             }
         }
         // aboutInfo.image
-        const aboutInfoImage = (_h = files === null || files === void 0 ? void 0 : files.aboutInfoImage) === null || _h === void 0 ? void 0 : _h[0];
+        const aboutInfoImage = (_k = files === null || files === void 0 ? void 0 : files.aboutInfoImage) === null || _k === void 0 ? void 0 : _k[0];
         if (aboutInfoImage) {
             const newPath = aboutInfoImage.path;
             body.aboutInfo = body.aboutInfo || {};
             body.aboutInfo.image = newPath;
-            if ((_j = doc.aboutInfo) === null || _j === void 0 ? void 0 : _j.image) {
-                const publicId = (_k = doc.aboutInfo.image.split('/').pop()) === null || _k === void 0 ? void 0 : _k.split('.')[0];
+            if ((_l = doc.aboutInfo) === null || _l === void 0 ? void 0 : _l.image) {
+                const publicId = (_m = doc.aboutInfo.image.split('/').pop()) === null || _m === void 0 ? void 0 : _m.split('.')[0];
                 if (publicId)
                     yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
             }
         }
         // whyChooseUs images (indexes 0..2)
-        const why1Image = (_l = files === null || files === void 0 ? void 0 : files.why1Image) === null || _l === void 0 ? void 0 : _l[0];
-        const why2Image = (_m = files === null || files === void 0 ? void 0 : files.why2Image) === null || _m === void 0 ? void 0 : _m[0];
-        const why3Image = (_o = files === null || files === void 0 ? void 0 : files.why3Image) === null || _o === void 0 ? void 0 : _o[0];
+        const why1Image = (_o = files === null || files === void 0 ? void 0 : files.why1Image) === null || _o === void 0 ? void 0 : _o[0];
+        const why2Image = (_p = files === null || files === void 0 ? void 0 : files.why2Image) === null || _p === void 0 ? void 0 : _p[0];
+        const why3Image = (_q = files === null || files === void 0 ? void 0 : files.why3Image) === null || _q === void 0 ? void 0 : _q[0];
         const currentWhy = Array.isArray(doc.whyChooseUs) ? doc.whyChooseUs : [];
         const nextWhy = Array.isArray(body.whyChooseUs) ? body.whyChooseUs : [...currentWhy];
         if (why1Image) {
             nextWhy[0] = nextWhy[0] || {};
             nextWhy[0].image = why1Image.path;
-            if ((_p = currentWhy[0]) === null || _p === void 0 ? void 0 : _p.image) {
-                const publicId = (_q = currentWhy[0].image.split('/').pop()) === null || _q === void 0 ? void 0 : _q.split('.')[0];
+            if ((_r = currentWhy[0]) === null || _r === void 0 ? void 0 : _r.image) {
+                const publicId = (_s = currentWhy[0].image.split('/').pop()) === null || _s === void 0 ? void 0 : _s.split('.')[0];
                 if (publicId)
                     yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
             }
@@ -103,8 +144,8 @@ const updateAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (why2Image) {
             nextWhy[1] = nextWhy[1] || {};
             nextWhy[1].image = why2Image.path;
-            if ((_r = currentWhy[1]) === null || _r === void 0 ? void 0 : _r.image) {
-                const publicId = (_s = currentWhy[1].image.split('/').pop()) === null || _s === void 0 ? void 0 : _s.split('.')[0];
+            if ((_t = currentWhy[1]) === null || _t === void 0 ? void 0 : _t.image) {
+                const publicId = (_u = currentWhy[1].image.split('/').pop()) === null || _u === void 0 ? void 0 : _u.split('.')[0];
                 if (publicId)
                     yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
             }
@@ -112,8 +153,8 @@ const updateAbout = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (why3Image) {
             nextWhy[2] = nextWhy[2] || {};
             nextWhy[2].image = why3Image.path;
-            if ((_t = currentWhy[2]) === null || _t === void 0 ? void 0 : _t.image) {
-                const publicId = (_u = currentWhy[2].image.split('/').pop()) === null || _u === void 0 ? void 0 : _u.split('.')[0];
+            if ((_v = currentWhy[2]) === null || _v === void 0 ? void 0 : _v.image) {
+                const publicId = (_w = currentWhy[2].image.split('/').pop()) === null || _w === void 0 ? void 0 : _w.split('.')[0];
                 if (publicId)
                     yield cloudinary_1.cloudinary.uploader.destroy(`about/${publicId}`);
             }

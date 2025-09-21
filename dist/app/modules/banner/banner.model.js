@@ -46,9 +46,18 @@ const BannerSchema = new mongoose_1.Schema({
         required: true,
         trim: true
     },
+    shortDesc: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     image: {
         type: String,
         required: true
+    },
+    banner: {
+        type: String,
+        required: true,
     },
     primaryButton: {
         label: { type: String, required: true, trim: true },
@@ -57,6 +66,16 @@ const BannerSchema = new mongoose_1.Schema({
     secondaryButton: {
         label: { type: String, trim: true },
         href: { type: String, trim: true }
+    },
+    totalBiodataCreated: {
+        type: Number,
+        default: 0,
+        min: 0,
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active',
     },
     isActive: {
         type: Boolean,

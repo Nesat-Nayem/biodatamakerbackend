@@ -33,48 +33,25 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FAQ = void 0;
+exports.Steps = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const FAQSchema = new mongoose_1.Schema({
-    question: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    answer: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    category: {
-        type: String,
-        trim: true,
-        default: 'General'
-    },
-    order: {
-        type: Number,
-        default: 0
-    },
-    isActive: {
-        type: Boolean,
-        default: true
-    },
-    status: {
-        type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
-    },
-    isDeleted: {
-        type: Boolean,
-        default: false
-    },
+const StepsCardSchema = new mongoose_1.Schema({
+    title: { type: String, required: true, trim: true },
+    icon: { type: String, required: true, trim: true },
+    desc: { type: String, required: true, trim: true },
+}, { _id: false });
+const StepsSchema = new mongoose_1.Schema({
+    title: { type: String, required: true, trim: true },
+    subtitle: { type: String, trim: true },
+    cards: { type: [StepsCardSchema], validate: [(val) => Array.isArray(val) && val.length === 3, 'Must have exactly 3 cards'] },
+    isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {
         transform: function (doc, ret) {
             ret.createdAt = new Date(ret.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
             ret.updatedAt = new Date(ret.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-        }
-    }
+        },
+    },
 });
-exports.FAQ = mongoose_1.default.model('FAQ', FAQSchema);
+exports.Steps = mongoose_1.default.model('Steps', StepsSchema);

@@ -22,9 +22,14 @@ const router = express_1.default.Router();
  *           type: string
  *         description:
  *           type: string
+ *         shortDesc:
+ *           type: string
  *         image:
  *           type: string
  *           description: Image URL
+ *         banner:
+ *           type: string
+ *           description: Banner image URL (same as image)
  *         primaryButton:
  *           type: object
  *           required: [label, href]
@@ -40,6 +45,11 @@ const router = express_1.default.Router();
  *               type: string
  *             href:
  *               type: string
+ *         totalBiodataCreated:
+ *           type: integer
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
  *         isActive:
  *           type: boolean
  *         order:
@@ -133,15 +143,22 @@ router.get('/:id', banner_controller_1.getBannerById);
  *         multipart/form-data:
  *           schema:
  *             type: object
- *             required: [title, description, image, primaryButton]
+ *             required: [title, description, shortDesc, image, primaryButton]
  *             properties:
  *               title:
  *                 type: string
  *               description:
  *                 type: string
+ *               shortDesc:
+ *                 type: string
  *               image:
  *                 type: string
  *                 format: binary
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *               totalBiodataCreated:
+ *                 type: integer
  *               primaryButton:
  *                 type: string
  *                 description: |
@@ -202,6 +219,8 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.single
  *                 type: string
  *               description:
  *                 type: string
+ *               shortDesc:
+ *                 type: string
  *               image:
  *                 type: string
  *                 format: binary
@@ -221,6 +240,11 @@ router.post('/', (0, authMiddleware_1.auth)('admin'), cloudinary_1.upload.single
  *               isActive:
  *                 type: string
  *                 enum: [true, false]
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *               totalBiodataCreated:
+ *                 type: integer
  *               order:
  *                 type: integer
  *     responses:

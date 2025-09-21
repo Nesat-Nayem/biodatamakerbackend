@@ -25,6 +25,14 @@ const plan_routes_1 = require("../modules/plan/plan.routes");
 const biodata_routes_1 = require("../modules/biodata/biodata.routes");
 const order_routes_1 = require("../modules/order/order.routes");
 const payment_routes_1 = require("../modules/payment/payment.routes");
+const counter_routes_1 = require("../modules/counter/counter.routes");
+const package_routes_1 = require("../modules/package/package.routes");
+const transaction_routes_1 = require("../modules/transaction/transaction.routes");
+const advertise_routes_1 = require("../modules/advertise/advertise.routes");
+const testimonial_routes_1 = require("../modules/testimonial/testimonial.routes");
+const compare_routes_1 = require("../modules/compare/compare.routes");
+const core_functions_routes_1 = require("../modules/core-functions/core-functions.routes");
+const steps_routes_1 = require("../modules/steps/steps.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -46,6 +54,38 @@ const moduleRoutes = [
     {
         path: "/templates",
         route: template_routes_1.templateRouter,
+    },
+    {
+        path: "/counters",
+        route: counter_routes_1.counterRouter,
+    },
+    {
+        path: "/packages",
+        route: package_routes_1.packageRouter,
+    },
+    {
+        path: "/transactions",
+        route: transaction_routes_1.transactionRouter,
+    },
+    {
+        path: "/advertise",
+        route: advertise_routes_1.advertiseRouter,
+    },
+    {
+        path: "/testimonials",
+        route: testimonial_routes_1.testimonialRouter,
+    },
+    {
+        path: "/compares",
+        route: compare_routes_1.compareRouter,
+    },
+    {
+        path: "/core-functions",
+        route: core_functions_routes_1.coreFunctionsRouter,
+    },
+    {
+        path: "/steps",
+        route: steps_routes_1.stepsRouter,
     },
     {
         path: "/plans",

@@ -17,11 +17,11 @@ const cloudinary_1 = require("../../config/cloudinary");
 const createBanner = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
-        const { title, description, isActive, order, 
+        const { title, description, shortDesc, isActive, status, order, 
         // JSON string versions
         primaryButton, secondaryButton, 
         // Fallback flat fields
-        primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, } = req.body;
+        primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, totalBiodataCreated, } = req.body;
         // If image is uploaded through multer middleware, req.file will be available
         if (!req.file) {
             next(new appError_1.appError("Banner image is required", 400));
@@ -29,6 +29,7 @@ const createBanner = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         }
         // Get the image URL from req.file
         const image = req.file.path;
+        const bannerUrl = image; // map to new 'banner' field as well
         // Build button objects (accept JSON strings or flat fields)
         let parsedPrimaryButton;
         let parsedSecondaryButton;
@@ -64,10 +65,14 @@ const createBanner = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const validatedData = banner_validation_1.bannerValidation.parse({
             title,
             description,
+            shortDesc,
             image,
+            banner: bannerUrl,
             primaryButton: parsedPrimaryButton,
             secondaryButton: parsedSecondaryButton,
-            isActive: isActive === 'true' || isActive === true,
+            totalBiodataCreated: totalBiodataCreated !== undefined && totalBiodataCreated !== '' ? parseInt(totalBiodataCreated) : undefined,
+            status: status,
+            isActive: status ? status === 'active' : (isActive === 'true' || isActive === true),
             order: order ? parseInt(order) : undefined,
         });
         // Create a new banner
@@ -150,7 +155,7 @@ const updateBannerById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     var _a, _b, _c;
     try {
         const bannerId = req.params.id;
-        const { title, description, isActive, order, primaryButton, secondaryButton, primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, } = req.body;
+        const { title, description, shortDesc, isActive, status, order, primaryButton, secondaryButton, primaryButtonLabel, primaryButtonHref, secondaryButtonLabel, secondaryButtonHref, totalBiodataCreated, } = req.body;
         // Find the banner to update
         const banner = yield banner_model_1.Banner.findOne({
             _id: bannerId,
@@ -168,15 +173,27 @@ const updateBannerById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         if (description !== undefined) {
             updateData.description = description;
         }
+        if (shortDesc !== undefined) {
+            updateData.shortDesc = shortDesc;
+        }
         if (isActive !== undefined) {
             updateData.isActive = isActive === 'true' || isActive === true;
+        }
+        if (status !== undefined) {
+            updateData.status = status;
+            // keep consistency
+            updateData.isActive = status === 'active';
         }
         if (order !== undefined) {
             updateData.order = parseInt(order);
         }
+        if (totalBiodataCreated !== undefined) {
+            updateData.totalBiodataCreated = parseInt(totalBiodataCreated);
+        }
         // If there's a new image
         if (req.file) {
             updateData.image = req.file.path;
+            updateData.banner = req.file.path;
             // Delete the old image from cloudinary if it exists
             if (banner.image) {
                 const publicId = (_a = banner.image.split('/').pop()) === null || _a === void 0 ? void 0 : _a.split('.')[0];

@@ -33,48 +33,20 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FAQ = void 0;
+exports.Advertise = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const FAQSchema = new mongoose_1.Schema({
-    question: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    answer: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    category: {
-        type: String,
-        trim: true,
-        default: 'General'
-    },
-    order: {
-        type: Number,
-        default: 0
-    },
-    isActive: {
-        type: Boolean,
-        default: true
-    },
-    status: {
-        type: String,
-        enum: ['active', 'inactive'],
-        default: 'active'
-    },
-    isDeleted: {
-        type: Boolean,
-        default: false
-    },
+const AdvertiseSchema = new mongoose_1.Schema({
+    banner: { type: String, required: true },
+    url: { type: String, required: true, trim: true },
+    status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    isDeleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {
         transform: function (doc, ret) {
             ret.createdAt = new Date(ret.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
             ret.updatedAt = new Date(ret.updatedAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-        }
-    }
+        },
+    },
 });
-exports.FAQ = mongoose_1.default.model('FAQ', FAQSchema);
+exports.Advertise = mongoose_1.default.model('Advertise', AdvertiseSchema);

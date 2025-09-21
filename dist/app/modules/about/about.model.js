@@ -58,6 +58,16 @@ const WhyChooseItemSchema = new mongoose_1.Schema({
     shortDesc: { type: String, default: '' },
 }, { _id: false });
 const AboutSchema = new mongoose_1.Schema({
+    // New top-level fields
+    title: { type: String, default: '' },
+    subtitle: { type: String, default: '' },
+    banner: { type: String, default: '' },
+    mission: { type: String, default: '' },
+    vision: { type: String, default: '' },
+    desc: { type: String, default: '' },
+    metaTitle: { type: String, default: '' },
+    metaTags: { type: [String], default: [] },
+    metaDesc: { type: String, default: '' },
     aboutUs: { type: AboutUsSchema, default: {} },
     counter: { type: CounterSchema, default: {} },
     aboutInfo: { type: AboutInfoSchema, default: {} },
