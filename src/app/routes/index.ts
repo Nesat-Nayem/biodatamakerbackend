@@ -32,6 +32,7 @@ import { testimonialRouter } from "../modules/testimonial/testimonial.routes";
 import { compareRouter } from "../modules/compare/compare.routes";
 import { coreFunctionsRouter } from "../modules/core-functions/core-functions.routes";
 import { stepsRouter } from "../modules/steps/steps.routes";
+import { biotemplateRouter } from "../modules/biotemplate/biotemplate.routes";
 
 const router = Router();
 const moduleRoutes = [
@@ -98,6 +99,11 @@ const moduleRoutes = [
   {
     path: "/steps",
     route: stepsRouter,
+  },
+
+  {
+    path: "/biotemplates",
+    route: biotemplateRouter,
   },
 
   {

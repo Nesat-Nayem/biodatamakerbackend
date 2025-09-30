@@ -85,6 +85,10 @@ const options: swaggerJSDoc.Options = {
         description: 'Biodata template management',
       },
       {
+        name: 'BioTemplates',
+        description: 'BioTemplate CRUD management',
+      },
+      {
         name: 'Counters',
         description: 'Site-wide counters management',
       },
@@ -292,6 +296,17 @@ const options: swaggerJSDoc.Options = {
             },
             isActive: { type: 'boolean' },
             order: { type: 'integer' },
+            isDeleted: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        BioTemplate: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string', description: 'BioTemplate ID' },
+            templatename: { type: 'string', description: 'Template name' },
+            banner: { type: 'string', description: 'Banner image URL' },
             isDeleted: { type: 'boolean' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },

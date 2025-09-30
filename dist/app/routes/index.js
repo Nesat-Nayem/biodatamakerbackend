@@ -33,6 +33,7 @@ const testimonial_routes_1 = require("../modules/testimonial/testimonial.routes"
 const compare_routes_1 = require("../modules/compare/compare.routes");
 const core_functions_routes_1 = require("../modules/core-functions/core-functions.routes");
 const steps_routes_1 = require("../modules/steps/steps.routes");
+const biotemplate_routes_1 = require("../modules/biotemplate/biotemplate.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -86,6 +87,10 @@ const moduleRoutes = [
     {
         path: "/steps",
         route: steps_routes_1.stepsRouter,
+    },
+    {
+        path: "/biotemplates",
+        route: biotemplate_routes_1.biotemplateRouter,
     },
     {
         path: "/plans",
